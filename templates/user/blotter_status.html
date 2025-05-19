@@ -1,0 +1,88 @@
+{% extends 'layout.html' %}
+
+{% block title %}My Blotter Reports | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="#" aria-current="page">My Blotter Reports</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-blue-800">My Blotter Reports</h1>
+        <a href="{{ url_for('main.report_blotter') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <i class="fas fa-plus mr-2"></i> Report New Incident
+        </a>
+    </div>
+
+    {% if reported_blotters %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Case Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Incident Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Incident Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Reported</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for blotter in reported_blotters %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ blotter.case_number }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ blotter.incident_type }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if blotter.incident_date %}
+                                {{ blotter.incident_date.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if blotter.date_reported %}
+                                {{ blotter.date_reported.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if blotter.status == 'Open' %}bg-green-100 text-green-800
+                            {% elif blotter.status == 'Under Investigation' %}bg-yellow-100 text-yellow-800
+                            {% elif blotter.status == 'Resolved' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ blotter.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ url_for('main.blotter_details', blotter_id=blotter.id) }}" class="text-blue-600 hover:text-blue-900">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        You have not reported any incidents yet. Use the "Report New Incident" button to submit a blotter report.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

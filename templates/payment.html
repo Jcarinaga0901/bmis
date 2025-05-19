@@ -1,0 +1,24 @@
+<div class="container">
+    <h2>Payment Required</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Document: {{ document.document_type }}</h5>
+            <p><strong>Amount: ${{ document.amount }}</strong></p>
+            
+            <form method="POST" action="{{ url_for('process_payment', id=document.id) }}">
+                <div class="form-group">
+                    <label for="payment_method">Payment Method</label>
+                    <select name="payment_method" class="form-control" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="cash">Cash</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="gcash">GCash</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Pay Now</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div> 

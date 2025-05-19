@@ -1,0 +1,176 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ official.first_name }} {{ official.last_name }} | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/officials">Officials</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('officials.view_official', official_id=official.id) }}" aria-current="page">
+        {{ official.first_name }} {{ official.last_name }}
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-start mb-6">
+        <h1 class="text-2xl font-bold text-green-800">{{ official.first_name }} {{ official.last_name }}</h1>
+        
+        <div class="flex space-x-2">
+            <a href="{{ url_for('officials.edit_official', official_id=official.id) }}" 
+               class="bg-green-800 text-white py-2 px-4 rounded hover:bg-green-700">
+                <i class="fas fa-edit mr-2"></i> Edit
+            </a>
+            <button onclick="confirmDelete('{{ official.id }}', '{{ official.first_name }} {{ official.last_name }}')"
+                    class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">
+                <i class="fas fa-trash-alt mr-2"></i> Delete
+            </button>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-1 bg-gray-50 p-6 rounded-lg">
+            <div class="flex flex-col items-center text-center mb-6">
+                <div class="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center text-3xl text-green-800 font-bold mb-4">
+                    {{ official.first_name[0] }}{{ official.last_name[0] }}
+                </div>
+                
+                <span class="px-3 py-1 rounded-full text-sm inline-block
+                    {% if is_current %}
+                        bg-green-100 text-green-800
+                    {% else %}
+                        bg-gray-100 text-gray-800
+                    {% endif %}">
+                    {{ "Current Official" if is_current else "Past Official" }}
+                </span>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <h2 class="text-sm font-medium text-gray-500">Position</h2>
+                    <p class="mt-1 text-gray-900">{{ official.position }}</p>
+                </div>
+                
+                <div>
+                    <h2 class="text-sm font-medium text-gray-500">Contact Number</h2>
+                    <p class="mt-1 text-gray-900">
+                        {% if official.contact_number %}
+                            <a href="tel:{{ official.contact_number }}" class="text-blue-600 hover:underline">
+                                {{ official.contact_number }}
+                            </a>
+                        {% else %}
+                            <span class="text-gray-400">Not provided</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="md:col-span-2 space-y-6">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Term Information</h2>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">Start of Term</h3>
+                            <p class="mt-1 text-gray-900">{{ official.start_term.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">End of Term</h3>
+                            <p class="mt-1 text-gray-900">{{ official.end_term.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <h3 class="text-sm font-medium text-gray-500">Term Duration</h3>
+                            <p class="mt-1 text-gray-900">
+                                {% set days_remaining = (official.end_term - official.start_term).days %}
+                                {% if days_remaining > 365 %}
+                                    {{ (days_remaining / 365)|round(1) }} years
+                                {% else %}
+                                    {{ days_remaining }} days
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Term Status</h2>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    {% set today = today|default(now.date()) %}
+                    {% if official.start_term > today %}
+                        <div class="flex items-center text-blue-700">
+                            <i class="fas fa-clock mr-2"></i>
+                            <p>Term has not yet started. Will begin on {{ official.start_term.strftime('%B %d, %Y') }}.</p>
+                        </div>
+                    {% elif official.end_term < today %}
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-history mr-2"></i>
+                            <p>Term has ended. The official served from {{ official.start_term.strftime('%B %d, %Y') }} to {{ official.end_term.strftime('%B %d, %Y') }}.</p>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center text-green-700">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <p>Currently in term. 
+                                {% set days_remaining = (official.end_term - today).days %}
+                                {% if days_remaining > 0 %}
+                                    Term ends in {{ days_remaining }} days.
+                                {% else %}
+                                    Term ends today.
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6" role="dialog" aria-labelledby="deleteModalTitle" aria-modal="true">
+        <h2 id="deleteModalTitle" class="text-xl font-bold text-red-600 mb-4">Confirm Deletion</h2>
+        <p class="text-gray-700 mb-6">Are you sure you want to delete <span id="officialName" class="font-medium"></span>? This action cannot be undone.</p>
+        
+        <form id="deleteForm" method="POST" class="flex justify-end space-x-4">
+            <button type="button" onclick="closeDeleteModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">
+                Cancel
+            </button>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmDelete(officialId, officialName) {
+        document.getElementById('officialName').textContent = officialName;
+        document.getElementById('deleteForm').action = "{{ url_for('officials.officials') }}" + "/" + officialId + "/delete";
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+    
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+    
+    // Close modal when pressing Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

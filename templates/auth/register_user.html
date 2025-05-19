@@ -1,0 +1,130 @@
+{% extends 'minimal_layout.html' %}
+{% block title %}Register Resident{% endblock %}
+{% block extra_head %}
+<style>
+    /* Removed empty body.login-bg rule to fix linter errors */
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('login-bg');
+});
+</script>
+{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen" style="background: url('{{ url_for('static', filename='uploads/login-bg.jpg') }}') center center / cover no-repeat fixed;">
+    <div class="w-full max-w-md bg-white bg-opacity-90 backdrop-blur-sm shadow-2xl rounded-2xl p-8 mt-8">
+        <div class="flex flex-col items-center mb-6">
+            <div class="h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center mb-2 shadow">
+                <i class="fas fa-user-plus text-3xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-blue-800 mb-2">Create Resident Account</h2>
+            <p class="text-gray-500 text-sm">Fill in the details below to register as a resident.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.register_user') }}" class="space-y-5">
+            <div>
+                <label for="barangay_id" class="block text-gray-700 font-semibold mb-1">Select Barangay</label>
+                <div class="relative">
+                    <select name="barangay_id" id="barangay_id" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
+                        <option value="">-- Select Barangay --</option>
+                        {% for barangay in barangays %}
+                        <option value="{{ barangay.id }}">{{ barangay.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-map-marker-alt"></i></span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="first_name" class="block text-gray-700 font-semibold mb-1">First Name</label>
+                    <div class="relative">
+                        <input type="text" name="first_name" id="first_name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="First Name">
+                        <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-user"></i></span>
+                    </div>
+                </div>
+                <div>
+                    <label for="last_name" class="block text-gray-700 font-semibold mb-1">Last Name</label>
+                    <div class="relative">
+                        <input type="text" name="last_name" id="last_name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Last Name">
+                        <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-user"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label for="email" class="block text-gray-700 font-semibold mb-1">Email</label>
+                <div class="relative">
+                    <input type="email" name="email" id="email" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter your email">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-envelope"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="username" class="block text-gray-700 font-semibold mb-1">Username</label>
+                <div class="relative">
+                    <input type="text" name="username" id="username" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter your username">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-user-circle"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="address" class="block text-gray-700 font-semibold mb-1">Address</label>
+                <div class="relative">
+                    <input type="text" name="address" id="address" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter your address">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-home"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="gender" class="block text-gray-700 font-semibold mb-1">Gender</label>
+                <select name="gender" id="gender" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div>
+                <label for="birth_date" class="block text-gray-700 font-semibold mb-1">Birth Date</label>
+                <input type="date" name="birth_date" id="birth_date" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
+            </div>
+            <div>
+                <label for="civil_status" class="block text-gray-700 font-semibold mb-1">Civil Status</label>
+                <select name="civil_status" id="civil_status" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
+                    <option value="">Select Civil Status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Widowed">Widowed</option>
+                    <option value="Separated">Separated</option>
+                    <option value="Divorced">Divorced</option>
+                </select>
+            </div>
+            <div>
+                <label for="password" class="block text-gray-700 font-semibold mb-1">Password</label>
+                <div class="relative">
+                    <input type="password" name="password" id="password" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter your password">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-lock"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="password_confirm" class="block text-gray-700 font-semibold mb-1">Confirm Password</label>
+                <div class="relative">
+                    <input type="password" name="password_confirm" id="password_confirm" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Confirm your password">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-lock"></i></span>
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-700 to-green-600 hover:from-blue-800 hover:to-green-700 text-white font-bold py-2 px-4 rounded-lg shadow transition duration-200 text-lg mt-2">
+                <i class="fas fa-user-plus mr-2"></i> Register
+            </button>
+        </form>
+        <div class="mt-6 text-center">
+            <a href="{{ url_for('auth.login') }}" class="text-blue-700 hover:underline">Already have an account? Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

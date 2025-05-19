@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <p>Welcome to the admin dashboard. Customize this page as needed.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Barangay Admins</p>
+                    <p class="text-3xl font-bold text-blue-700">{{ total_admins }}</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-user-shield text-blue-700 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Residents</p>
+                    <p class="text-3xl font-bold text-green-700">{{ total_residents }}</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-users text-green-700 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Staff/Officials</p>
+                    <p class="text-3xl font-bold text-yellow-600">{{ total_staff }}</p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-full">
+                    <i class="fas fa-user-tie text-yellow-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <a href="{{ url_for('admin.user_stats') }}" class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">User Statistics</p>
+                    <p class="text-lg font-semibold text-gray-800">View User Breakdown</p>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <i class="fas fa-chart-pie text-blue-500 text-xl"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

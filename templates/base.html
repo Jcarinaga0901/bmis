@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Barangay Management System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'barangay-blue': '#1e3a8a',
+                        'barangay-light-blue': '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-barangay-blue text-white flex flex-col">
+            <!-- Logo -->
+            <div class="p-6 border-b border-blue-800">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-building text-2xl"></i>
+                    <div>
+                        <h1 class="text-xl font-bold">Barangay</h1>
+                        <p class="text-blue-200 text-sm">Management System</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Welcome Message -->
+            <div class="p-6 border-b border-blue-800">
+                <p class="text-blue-200 text-sm">Welcome back,</p>
+                <p class="text-lg font-semibold">{{ current_user.username if current_user.is_authenticated else 'Guest' }}</p>
+            </div>
+            <!-- Navigation -->
+            <nav class="flex-1 py-6">
+                <ul class="space-y-2 px-4">
+                    <li>
+                        <a href="{{ url_for('main.home') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors">
+                            <i class="fas fa-tachometer-alt w-5"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('residents.list_residents') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors">
+                            <i class="fas fa-users w-5"></i>
+                            <span>Residents</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('officials.officials') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors">
+                            <i class="fas fa-id-card w-5"></i>
+                            <span>Officials</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('documents.index') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors">
+                            <i class="fas fa-file-alt w-5"></i>
+                            <span>Documents</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.view_blotters') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors">
+                            <i class="fas fa-exclamation-triangle w-5"></i>
+                            <span>Blotter Records</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('announcements.announcements') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors">
+                            <i class="fas fa-bullhorn w-5"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li>
+                            <a href="{{ url_for('auth.logout') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors text-red-200">
+                                <i class="fas fa-sign-out-alt w-5"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+            {% else %}
+                        <li>
+                            <a href="{{ url_for('auth.login') }}" class="flex items-center space-x-3 p-3 hover:bg-blue-800 rounded-lg transition-colors">
+                                <i class="fas fa-sign-in-alt w-5"></i>
+                                <span>Login</span>
+                            </a>
+                        </li>
+            {% endif %}
+        </ul>
+    </nav>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col min-h-screen">
+            <main class="flex-1 p-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                        <div class="mb-4 space-y-2">
+                {% for category, message in messages %}
+                                <div class="px-4 py-2 rounded text-white {{ 'bg-green-600' if category == 'success' else 'bg-red-600' if category == 'error' or category == 'danger' else 'bg-blue-600' }}">
+                                    {{ message }}
+                                </div>
+                {% endfor %}
+                        </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+            </main>
+            <footer class="bg-white border-t text-center py-4 text-gray-500 text-sm">
+                &copy; {{ now.strftime('%Y') }} Barangay Management System
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

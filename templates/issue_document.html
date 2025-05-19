@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% block title %}Issue New Document | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/documents">Documents</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('documents.issue_document') }}" aria-current="page">Issue New Document</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-yellow-800 mb-6">Issue New Document</h1>
+    
+    <form method="POST" action="/documents/issue">
+        <div class="grid grid-cols-1 gap-6">
+            <div>
+                <label for="resident_id" class="block text-gray-700 font-medium mb-2">Select Resident</label>
+                <select name="resident_id" id="resident_id" required 
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    <option value="">Select Resident</option>
+                    {% for resident in residents %}
+                    <option value="{{ resident.id }}" {% if selected_resident and selected_resident.id == resident.id %}selected{% endif %}>
+                        {{ resident.last_name }}, {{ resident.first_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-2 text-sm text-gray-500">
+                    Can't find the resident? <a href="{{ url_for('residents.add_resident') }}" class="text-yellow-600 hover:underline">Add a new resident</a>
+                </p>
+            </div>
+            
+            <div>
+                <label for="document_type" class="block text-gray-700 font-medium mb-2">Document Type</label>
+                <select name="document_type" id="document_type" required 
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    <option value="">Select Document Type</option>
+                    <option value="Barangay Clearance">Barangay Clearance</option>
+                    <option value="Certificate of Residency">Certificate of Residency</option>
+                    <option value="Certificate of Indigency">Certificate of Indigency</option>
+                    <option value="Business Permit">Business Permit</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="purpose" class="block text-gray-700 font-medium mb-2">Purpose</label>
+                <textarea name="purpose" id="purpose" rows="3" required 
+                          class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          placeholder="Specify the purpose for requesting this document"></textarea>
+            </div>
+        </div>
+        
+        <div class="mt-8 flex justify-end">
+            <a href="/documents" class="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 mr-4">
+                Cancel
+            </a>
+            <button type="submit" class="bg-yellow-800 text-white py-2 px-4 rounded hover:bg-yellow-700">
+                Issue Document
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block title %}All Residents | Admin | Barangay Management System{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-blue-800">All Residents</h1>
+    <form method="get" class="flex flex-col md:flex-row gap-4 mb-6">
+        <input type="text" name="search" value="{{ search or '' }}" placeholder="Search by name or address..." class="w-full md:w-1/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <select name="barangay_id" class="w-full md:w-1/4 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Barangays</option>
+            {% for barangay in barangays %}
+                <option value="{{ barangay.id }}" {% if selected_barangay == barangay.id %}selected{% endif %}>{{ barangay.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800">Filter</button>
+    </form>
+    <div class="overflow-x-auto bg-white rounded-lg shadow-md">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-blue-100">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Gender</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Age</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Address</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Contact</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Email</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Barangay</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for resident in residents %}
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="px-4 py-3">{{ resident.last_name }}, {{ resident.first_name }}</td>
+                    <td class="px-4 py-3">{{ resident.gender }}</td>
+                    <td class="px-4 py-3">{{ resident.get_age() }}</td>
+                    <td class="px-4 py-3">{{ resident.address }}</td>
+                    <td class="px-4 py-3">{{ resident.contact_number or '-' }}</td>
+                    <td class="px-4 py-3">{{ resident.email or '-' }}</td>
+                    <td class="px-4 py-3">{{ resident.barangay.name if resident.barangay else '-' }}</td>
+                    <td class="px-4 py-3">
+                        <a href="{{ url_for('residents.view_resident', resident_id=resident.id) }}" class="text-blue-600 hover:underline">View</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-gray-400 py-8">No residents found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

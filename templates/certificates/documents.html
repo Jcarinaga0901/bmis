@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block title %}Documents | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="{{ url_for('main.home') }}">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('certificates.index') }}">Certificates</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('certificates.documents') }}" aria-current="page">Documents</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-blue-800 mb-6">Documents</h1>
+    <p class="mb-4">Welcome to the Documents page. Here you can manage and view all barangay documents.</p>
+    
+    <!-- Document List -->
+    <div class="mt-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Document Card -->
+            <div class="bg-gray-50 p-4 rounded-lg border">
+                <h3 class="font-semibold text-lg mb-2">Barangay Clearance</h3>
+                <p class="text-gray-600 mb-4">Official document certifying residency and good standing.</p>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Request Document
+                </button>
+            </div>
+
+            <!-- Document Card -->
+            <div class="bg-gray-50 p-4 rounded-lg border">
+                <h3 class="font-semibold text-lg mb-2">Indigency Certificate</h3>
+                <p class="text-gray-600 mb-4">Certificate for residents in need of financial assistance.</p>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Request Document
+                </button>
+            </div>
+
+            <!-- Document Card -->
+            <div class="bg-gray-50 p-4 rounded-lg border">
+                <h3 class="font-semibold text-lg mb-2">Residency Certificate</h3>
+                <p class="text-gray-600 mb-4">Proof of residence in the barangay.</p>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Request Document
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

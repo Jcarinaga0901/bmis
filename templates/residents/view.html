@@ -1,0 +1,206 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ resident.first_name }} {{ resident.last_name }} | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/residents">Residents</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('residents.view_resident', resident_id=resident.id) }}" aria-current="page">
+        {{ resident.first_name }} {{ resident.last_name }}
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Resident profile card -->
+    <div class="bg-white p-6 rounded-lg shadow-md col-span-1">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-100 rounded-full mb-4">
+                <span class="text-blue-800 text-3xl font-bold">
+                    {{ resident.first_name[0] }}{{ resident.last_name[0] }}
+                </span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900">
+                {{ resident.first_name }} {{ resident.last_name }}
+            </h1>
+            <p class="text-gray-500">
+                Resident since {{ resident.created_at.strftime('%b %d, %Y') }}
+            </p>
+        </div>
+        
+        <div class="flex justify-center space-x-2 mb-6">
+            <a href="{{ url_for('residents.edit_resident', resident_id=resident.id) }}" 
+               class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">
+                <i class="fas fa-edit mr-2" aria-hidden="true"></i> Edit
+            </a>
+            <button type="button" 
+                    onclick="confirmDelete('{{ resident.id }}', '{{ resident.first_name }} {{ resident.last_name }}')"
+                    class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center">
+                <i class="fas fa-trash-alt mr-2" aria-hidden="true"></i> Delete
+            </button>
+        </div>
+        
+        <hr class="my-6 border-gray-200">
+        
+        <div class="space-y-4">
+            <div>
+                <h2 class="text-sm font-medium text-gray-500">Age</h2>
+                <p class="mt-1 text-gray-900">{{ calculate_age(resident.birth_date) }} years old</p>
+            </div>
+            
+            <div>
+                <h2 class="text-sm font-medium text-gray-500">Address</h2>
+                <p class="mt-1 text-gray-900">{{ resident.address }}</p>
+            </div>
+            
+            <div>
+                <h2 class="text-sm font-medium text-gray-500">Contact Number</h2>
+                <p class="mt-1 text-gray-900">
+                    {% if resident.contact_number %}
+                        <a href="tel:{{ resident.contact_number }}" class="text-blue-600 hover:underline">
+                            {{ resident.contact_number }}
+                        </a>
+                    {% else %}
+                        <span class="text-gray-400">Not provided</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div>
+                <h2 class="text-sm font-medium text-gray-500">Email</h2>
+                <p class="mt-1 text-gray-900">
+                    {% if resident.email %}
+                        <a href="mailto:{{ resident.email }}" class="text-blue-600 hover:underline">
+                            {{ resident.email }}
+                        </a>
+                    {% else %}
+                        <span class="text-gray-400">Not provided</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div>
+                <h2 class="text-sm font-medium text-gray-500">Date of Birth</h2>
+                <p class="mt-1 text-gray-900">{{ resident.birth_date.strftime('%B %d, %Y') }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Document history and actions -->
+    <div class="bg-white p-6 rounded-lg shadow-md col-span-2">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">Document History</h2>
+            <a href="{{ url_for('documents.issue_document', resident_id=resident.id) }}" 
+               class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center text-sm">
+                <i class="fas fa-file-alt mr-2" aria-hidden="true"></i> Issue New Document
+            </a>
+        </div>
+        
+        {% if resident.documents %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Document Type
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Issue Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Purpose
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for document in resident.documents %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ document.document_type }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ document.issue_date.strftime('%b %d, %Y') }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">{{ document.purpose }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                <a href="{{ url_for('documents.view_document', document_id=document.id) }}" class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                    <span class="sr-only">View document</span>
+                                </a>
+                                <a href="{{ url_for('documents.print_document', document_id=document.id) }}" class="ml-3 text-green-600 hover:text-green-900">
+                                    <i class="fas fa-print" aria-hidden="true"></i>
+                                    <span class="sr-only">Print document</span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="bg-gray-50 rounded-lg p-6 text-center">
+                <div class="text-gray-500 mb-4">
+                    <i class="fas fa-file-alt text-4xl" aria-hidden="true"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Documents Found</h3>
+                <p class="text-gray-500 mb-4">This resident has no documents issued yet.</p>
+                <a href="{{ url_for('documents.issue_document', resident_id=resident.id) }}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    Issue First Document
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6" role="dialog" aria-labelledby="deleteModalTitle" aria-modal="true">
+        <h2 id="deleteModalTitle" class="text-xl font-bold text-red-600 mb-4">Confirm Deletion</h2>
+        <p class="text-gray-700 mb-6">Are you sure you want to delete <span id="residentName" class="font-medium"></span>? This action cannot be undone.</p>
+        
+        <form id="deleteForm" method="POST" class="flex justify-end space-x-4">
+            <button type="button" onclick="closeDeleteModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">
+                Cancel
+            </button>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmDelete(residentId, residentName) {
+        document.getElementById('residentName').textContent = residentName;
+        document.getElementById('deleteForm').action = `/residents/${residentId}/delete`;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+    
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+    
+    // Close modal when pressing Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

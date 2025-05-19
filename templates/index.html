@@ -1,0 +1,434 @@
+{% extends 'layout.html' %}
+
+{% block title %}{% if current_user.is_authenticated %}Dashboard{% else %}Welcome{% endif %} | Barangay Management System{% endblock %}
+
+{% block extra_head %}
+{% if not current_user.is_authenticated %}
+<style>
+body.index-bg {
+    background: url('{{ url_for('static', filename='uploads/login-bg.jpg') }}') no-repeat center center fixed;
+    background-size: cover;
+}
+.landing-overlay {
+    background: rgba(255,255,255,0.85);
+    border-radius: 1rem;
+    padding: 2rem 1rem;
+    margin: 2rem auto;
+    max-width: 1100px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('index-bg');
+});
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{{ super() }}
+{% if current_user.is_authenticated %}
+<!-- Authenticated user dashboard -->
+<div class="space-y-6">
+    <!-- Welcome card -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-blue-800 mb-4">Welcome to Barangay Management System</h1>
+        <p class="text-gray-600 mb-4">
+            An efficient system to manage your barangay's residents, officials, documents, and projects.
+        </p>
+    </div>
+    <!-- Chart.js Bar Chart for Residents per Barangay -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-blue-800 mb-4">Residents per Barangay</h2>
+        <canvas id="residentsChart" width="400" height="120"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('residentsChart').getContext('2d');
+        const residentsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ resident_counts|map(attribute='barangay')|list|tojson }},
+                datasets: [{
+                    label: 'Number of Residents',
+                    data: {{ resident_counts|map(attribute='count')|list|tojson }},
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+    
+    <!-- Quick stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-blue-100 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-blue-800">Residents</h2>
+                <span class="bg-blue-200 text-blue-800 p-2 rounded-full">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-blue-800" id="resident-count">
+                <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+            </p>
+            <p class="text-blue-600 mt-2">Registered residents</p>
+            <a href="/residents" class="mt-4 inline-block text-blue-800 hover:underline">
+                View all residents
+                <i class="fas fa-arrow-right ml-1" aria-hidden="true"></i>
+            </a>
+        </div>
+        
+        <div class="bg-green-100 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-green-800">Officials</h2>
+                <span class="bg-green-200 text-green-800 p-2 rounded-full">
+                    <i class="fas fa-id-card" aria-hidden="true"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-green-800" id="official-count">
+                <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+            </p>
+            <p class="text-green-600 mt-2">Current officials</p>
+            <a href="/officials" class="mt-4 inline-block text-green-800 hover:underline">
+                View all officials
+                <i class="fas fa-arrow-right ml-1" aria-hidden="true"></i>
+            </a>
+        </div>
+        
+        <div class="bg-yellow-100 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-yellow-800">Documents</h2>
+                <span class="bg-yellow-200 text-yellow-800 p-2 rounded-full">
+                    <i class="fas fa-file-alt" aria-hidden="true"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-yellow-800" id="document-count">
+                <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+            </p>
+            <p class="text-yellow-600 mt-2">Issued this month</p>
+            <a href="/documents" class="mt-4 inline-block text-yellow-800 hover:underline">
+                Issue new document
+                <i class="fas fa-arrow-right ml-1" aria-hidden="true"></i>
+            </a>
+        </div>
+        
+        <div class="bg-purple-100 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-purple-800">Projects</h2>
+                <span class="bg-purple-200 text-purple-800 p-2 rounded-full">
+                    <i class="fas fa-project-diagram" aria-hidden="true"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-purple-800" id="project-count">
+                <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+            </p>
+            <p class="text-purple-600 mt-2">Active projects</p>
+            <a href="/projects" class="mt-4 inline-block text-purple-800 hover:underline">
+                View all projects
+                <i class="fas fa-arrow-right ml-1" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent activities and quick actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent documents -->
+        <div class="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Recent Documents</h2>
+                <a href="/documents" class="text-blue-600 hover:underline text-sm">View all</a>
+            </div>
+            
+            <div class="overflow-x-auto" id="recent-documents-container">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resident</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="recent-documents">
+                        <tr>
+                            <td colspan="4" class="px-4 py-4 text-center text-gray-500">
+                                <i class="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Quick actions -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Quick Actions</h2>
+            
+            <div class="space-y-4">
+                <a href="/residents/add" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <span class="bg-blue-200 text-blue-800 p-3 rounded-full mr-4">
+                        <i class="fas fa-user-plus" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-medium text-blue-800">Add New Resident</h3>
+                        <p class="text-sm text-blue-600">Register a new barangay resident</p>
+                    </div>
+                </a>
+                
+                <a href="/documents/issue" class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
+                    <span class="bg-yellow-200 text-yellow-800 p-3 rounded-full mr-4">
+                        <i class="fas fa-file-alt" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-medium text-yellow-800">Issue Document</h3>
+                        <p class="text-sm text-yellow-600">Create a new certificate or permit</p>
+                    </div>
+                </a>
+                
+                <a href="/projects/add" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="bg-purple-200 text-purple-800 p-3 rounded-full mr-4">
+                        <i class="fas fa-tasks" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-medium text-purple-800">Add New Project</h3>
+                        <p class="text-sm text-purple-600">Create a new barangay project</p>
+                    </div>
+                </a>
+                
+                <a href="/officials/add" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                    <span class="bg-green-200 text-green-800 p-3 rounded-full mr-4">
+                        <i class="fas fa-user-tie" aria-hidden="true"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-medium text-green-800">Add Official</h3>
+                        <p class="text-sm text-green-600">Add a new barangay official</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Landing page for non-authenticated users -->
+<div class="landing-overlay">
+    <div class="space-y-12">
+        <!-- Hero section -->
+        <div class="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-10 rounded-lg shadow-lg">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6">Barangay Management System</h1>
+                <p class="text-xl mb-8">A comprehensive solution for efficient barangay administration and resident services</p>
+                {% if announcements %}
+                <div class="mb-6">
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow">
+                        <h2 class="text-lg font-bold text-yellow-800 mb-2"><i class="fas fa-bullhorn"></i> Barangay Announcements</h2>
+                        <ul>
+                            {% for announcement in announcements %}
+                            <li class="mb-2">
+                                <div class="font-semibold text-yellow-900">{{ announcement.title }}</div>
+                                <div class="text-sm text-gray-700">{{ announcement.content[:120] }}{% if announcement.content|length > 120 %}...{% endif %}</div>
+                                <div class="text-xs text-gray-500">{{ announcement.date_posted.strftime('%B %d, %Y') }}</div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="mt-2">
+                            <a href="{{ url_for('announcements.announcements') }}" class="text-blue-700 hover:underline">View all announcements</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ url_for('auth.login') }}" class="bg-white text-blue-800 py-3 px-8 rounded-lg font-bold hover:bg-blue-100 transform hover:scale-105 transition duration-300">
+                        Log In
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="bg-transparent border-2 border-white text-white py-3 px-8 rounded-lg font-bold hover:bg-white hover:text-blue-800 transform hover:scale-105 transition duration-300">
+                        Register
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features section -->
+        <div class="bg-white p-10 rounded-lg shadow-md">
+            <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">Key Features</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-blue-50 p-6 rounded-lg text-center">
+                    <div class="bg-blue-100 inline-block p-3 rounded-full mb-4">
+                        <i class="fas fa-users text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">Resident Management</h3>
+                    <p class="text-gray-600">Maintain complete and up-to-date resident records with ease</p>
+                </div>
+                
+                <div class="bg-green-50 p-6 rounded-lg text-center">
+                    <div class="bg-green-100 inline-block p-3 rounded-full mb-4">
+                        <i class="fas fa-id-card text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-800 mb-2">Official Records</h3>
+                    <p class="text-gray-600">Track current and past barangay officials and their terms</p>
+                </div>
+                
+                <div class="bg-yellow-50 p-6 rounded-lg text-center">
+                    <div class="bg-yellow-100 inline-block p-3 rounded-full mb-4">
+                        <i class="fas fa-file-alt text-2xl text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-yellow-800 mb-2">Document Issuance</h3>
+                    <p class="text-gray-600">Issue and track various barangay certifications and permits</p>
+                </div>
+                
+                <div class="bg-purple-50 p-6 rounded-lg text-center">
+                    <div class="bg-purple-100 inline-block p-3 rounded-full mb-4">
+                        <i class="fas fa-project-diagram text-2xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-2">Project Tracking</h3>
+                    <p class="text-gray-600">Monitor barangay projects, budgets, and implementation status</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- About/Benefits section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">About the System</h2>
+                <p class="text-gray-600 mb-4">
+                    The Barangay Management System is designed to streamline administrative processes and improve service delivery 
+                    at the barangay level. With this integrated system, barangay officials can efficiently manage resident 
+                    information, document requests, official records, and development projects.
+                </p>
+                <p class="text-gray-600">
+                    Our system is built with security, ease-of-use, and accessibility in mind, ensuring that barangay 
+                    staff can focus more on serving residents and less on paperwork.
+                </p>
+            </div>
+            
+            <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Benefits</h2>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span class="text-gray-600">Reduces paperwork and administrative burden</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span class="text-gray-600">Improves document processing and issuance speed</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span class="text-gray-600">Ensures accurate and secure record-keeping</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span class="text-gray-600">Enhances transparency in barangay operations</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span class="text-gray-600">Provides data-driven insights for better decision making</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Call to action -->
+        <div class="bg-blue-700 text-white p-10 rounded-lg shadow-lg text-center">
+            <h2 class="text-3xl font-bold mb-4">Ready to get started?</h2>
+            <p class="text-xl mb-8">Join other barangays that have improved their service delivery with our system</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('auth.login') }}" class="bg-white text-blue-700 py-3 px-8 rounded-lg font-bold hover:bg-blue-50 transition duration-300">
+                    Log In Now
+                </a>
+                <a href="{{ url_for('main.contact_support') }}" class="bg-transparent border-2 border-white text-white py-3 px-8 rounded-lg font-bold hover:bg-white hover:text-blue-700 transition duration-300">
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if current_user.is_authenticated %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch dashboard stats
+        fetch('/api/dashboard-stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('resident-count').textContent = data.residents;
+                document.getElementById('official-count').textContent = data.officials;
+                document.getElementById('document-count').textContent = data.documents;
+                document.getElementById('project-count').textContent = data.projects;
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard stats:', error);
+                document.getElementById('resident-count').textContent = '?';
+                document.getElementById('official-count').textContent = '?';
+                document.getElementById('document-count').textContent = '?';
+                document.getElementById('project-count').textContent = '?';
+            });
+            
+        // Fetch recent documents
+        fetch('/api/recent-documents')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('recent-documents');
+                tbody.innerHTML = '';
+                
+                if (data.documents.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="4" class="px-4 py-4 text-center text-gray-500">
+                            No recent documents found
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                    return;
+                }
+                
+                data.documents.forEach(doc => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${doc.resident_name}</div>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                ${doc.type_color.replace('dark:bg-', 'bg-').replace('dark:text-', 'text-')}">
+                                ${doc.document_type}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${doc.issue_date}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="/documents/${doc.id}" class="text-blue-600 hover:text-blue-900">
+                                View
+                            </a>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching recent documents:', error);
+                document.getElementById('recent-documents').innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-4 py-4 text-center text-red-500">
+                            Error loading recent documents
+                        </td>
+                    </tr>
+                `;
+            });
+    });
+</script>
+{% endif %}
+{% endblock %}

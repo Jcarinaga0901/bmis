@@ -1,0 +1,214 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ project.name }} | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/projects">Projects</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" aria-current="page">
+        {{ project.name }}
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-start mb-6">
+        <h1 class="text-2xl font-bold text-purple-800">{{ project.name }}</h1>
+        
+        <div class="flex space-x-2">
+            <a href="{{ url_for('projects.edit_project', project_id=project.id) }}" 
+               class="bg-purple-800 text-white py-2 px-4 rounded hover:bg-purple-700">
+                <i class="fas fa-edit mr-2"></i> Edit
+            </a>
+            <button onclick="confirmDelete('{{ project.id }}', '{{ project.name }}')"
+                    class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">
+                <i class="fas fa-trash-alt mr-2"></i> Delete
+            </button>
+        </div>
+    </div>
+    
+    <div class="mb-6">
+        <span class="px-3 py-1 rounded-full text-sm inline-block
+            {% if project.status == 'Completed' %}
+                bg-green-100 text-green-800
+            {% elif project.status == 'Ongoing' %}
+                bg-blue-100 text-blue-800
+            {% elif project.status == 'Planned' %}
+                bg-yellow-100 text-yellow-800
+            {% else %}
+                bg-red-100 text-red-800
+            {% endif %}
+        ">
+            {{ project.status }}
+        </span>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Description</h2>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <p class="text-gray-700 whitespace-pre-wrap">{{ project.description }}</p>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Timeline</h2>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">Start Date</h3>
+                            <p class="mt-1 text-gray-900">{{ project.start_date.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">End Date</h3>
+                            <p class="mt-1 text-gray-900">
+                                {% if project.end_date %}
+                                    {{ project.end_date.strftime('%B %d, %Y') }}
+                                {% else %}
+                                    <span class="text-gray-400">Not specified</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        {% if project.start_date and project.end_date %}
+                        <div class="md:col-span-2">
+                            <h3 class="text-sm font-medium text-gray-500">Duration</h3>
+                            <p class="mt-1 text-gray-900">
+                                {% set days = (project.end_date - project.start_date).days %}
+                                {% if days > 365 %}
+                                    {{ (days / 365)|round(1) }} years
+                                {% elif days > 30 %}
+                                    {{ (days / 30)|round(0) }} months
+                                {% else %}
+                                    {{ days }} days
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="space-y-6">
+            <div class="bg-purple-50 p-6 rounded-lg">
+                <h2 class="text-lg font-semibold text-purple-800 mb-4">Project Budget</h2>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-purple-700">
+                        {% if project.budget %}
+                            {{ format_currency(project.budget) }}
+                        {% else %}
+                            <span class="text-gray-400">Not specified</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Project Status</h2>
+                <div class="space-y-3">
+                    {% if project.status == 'Planned' %}
+                        <div class="flex items-start">
+                            <i class="fas fa-calendar-alt text-yellow-600 mt-1 mr-3"></i>
+                            <p class="text-gray-700">This project is currently in the planning phase and has not started yet.</p>
+                        </div>
+                    {% elif project.status == 'Ongoing' %}
+                        <div class="flex items-start">
+                            <i class="fas fa-spinner text-blue-600 mt-1 mr-3"></i>
+                            <p class="text-gray-700">This project is currently in progress.</p>
+                        </div>
+                        
+                        {% if project.end_date %}
+                            {% set today = now.date() %}
+                            {% set days_left = (project.end_date - today).days %}
+                            {% if days_left > 0 %}
+                                <div class="flex items-start">
+                                    <i class="fas fa-clock text-blue-600 mt-1 mr-3"></i>
+                                    <p class="text-gray-700">{{ days_left }} days remaining until scheduled completion.</p>
+                                </div>
+                            {% elif days_left == 0 %}
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-circle text-yellow-600 mt-1 mr-3"></i>
+                                    <p class="text-yellow-700">Project is scheduled to be completed today.</p>
+                                </div>
+                            {% else %}
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-triangle text-red-600 mt-1 mr-3"></i>
+                                    <p class="text-red-700">Project is {{ days_left|abs }} days overdue.</p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% elif project.status == 'Completed' %}
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-600 mt-1 mr-3"></i>
+                            <p class="text-gray-700">This project has been completed.</p>
+                        </div>
+                        
+                        {% if project.start_date and project.end_date %}
+                            <div class="flex items-start">
+                                <i class="fas fa-calendar-check text-green-600 mt-1 mr-3"></i>
+                                <p class="text-gray-700">
+                                    Project duration: {{ (project.end_date - project.start_date).days }} days
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% elif project.status == 'Cancelled' %}
+                        <div class="flex items-start">
+                            <i class="fas fa-times-circle text-red-600 mt-1 mr-3"></i>
+                            <p class="text-gray-700">This project has been cancelled.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6" role="dialog" aria-labelledby="deleteModalTitle" aria-modal="true">
+        <h2 id="deleteModalTitle" class="text-xl font-bold text-red-600 mb-4">Confirm Deletion</h2>
+        <p class="text-gray-700 mb-6">Are you sure you want to delete <span id="projectName" class="font-medium"></span>? This action cannot be undone.</p>
+        
+        <form id="deleteForm" method="POST" class="flex justify-end space-x-4">
+            <button type="button" onclick="closeDeleteModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">
+                Cancel
+            </button>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmDelete(projectId, projectName) {
+        document.getElementById('projectName').textContent = projectName;
+        document.getElementById('deleteForm').action = "{{ url_for('projects.projects') }}" + "/" + projectId + "/delete";
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+    
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+    
+    // Close modal when pressing Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+</script>
+{% endblock %}

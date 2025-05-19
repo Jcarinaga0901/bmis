@@ -1,0 +1,357 @@
+{% extends 'layout.html' %}
+
+{% block title %}Settings | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('settings.settings') }}" aria-current="page">Settings</a>
+</li>
+{% endblock %}
+
+{% block content %}
+{% if not barangay %}
+<div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto mt-8 text-center">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">No barangay settings available for this user.</h2>
+    <p class="text-gray-500">You are logged in as a system administrator and do not have barangay-specific settings.</p>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto mt-8">
+    <h2 class="text-2xl font-bold text-blue-800 mb-6">System Logo Settings</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-8" id="superAdminLogoForm">
+        <div class="flex items-center space-x-8">
+            <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-blue-200 flex items-center justify-center relative" aria-label="System Logo Preview">
+                <img id="superadmin-logo-preview" src="{% if current_user.logo_filename %}{{ url_for('static', filename='uploads/superadmin_logos/' ~ current_user.logo_filename) }}{% endif %}" alt="System Logo" class="w-full h-full object-cover {% if not current_user.logo_filename %}hidden{% endif %}" />
+                <div id="superadmin-logo-placeholder" class="w-full h-full flex items-center justify-center bg-gray-200 absolute top-0 left-0 {% if current_user.logo_filename %}hidden{% endif %}">
+                    <i class="fas fa-crown text-gray-400 text-5xl" aria-hidden="true"></i>
+                </div>
+                {% if current_user.logo_filename %}
+                <button type="button" id="remove-superadmin-logo-btn" aria-label="Remove Logo" class="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-1 shadow hover:bg-red-100 focus:outline-none" tabindex="0">
+                    <i class="fas fa-times text-red-600"></i>
+                </button>
+                {% endif %}
+                <div id="superadmin-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-70">
+                    <svg class="animate-spin h-8 w-8 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                </div>
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="superadmin_logo">Upload New System Logo</label>
+                <input type="file" name="superadmin_logo" id="superadmin_logo" accept="image/*" aria-label="Upload System Logo"
+                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                <p class="mt-2 text-sm text-gray-500">PNG, JPG, JPEG or GIF (max. 5MB). Uploading is optional.</p>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded transition duration-200" id="saveSuperAdminLogoBtn">
+                Save Logo
+            </button>
+        </div>
+    </form>
+    <div id="superadmin-toast" class="fixed top-6 right-6 z-50 hidden px-4 py-3 rounded shadow-lg text-white font-semibold"></div>
+</div>
+{% elif current_user.role == 'default_admin' %}
+<div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto mt-8">
+    <h2 class="text-2xl font-bold text-blue-800 mb-6">Default Admin Logo Settings</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-8" id="defaultAdminLogoForm">
+        <div class="flex items-center space-x-8">
+            <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-blue-200 flex items-center justify-center relative" aria-label="Default Admin Logo Preview">
+                <img id="defaultadmin-logo-preview" src="{% if current_user.logo_filename %}{{ url_for('static', filename='uploads/default_admin_logos/' ~ current_user.logo_filename) }}{% endif %}" alt="Default Admin Logo" class="w-full h-full object-cover {% if not current_user.logo_filename %}hidden{% endif %}" />
+                <div id="defaultadmin-logo-placeholder" class="w-full h-full flex items-center justify-center bg-gray-200 absolute top-0 left-0 {% if current_user.logo_filename %}hidden{% endif %}">
+                    <i class="fas fa-user-shield text-gray-400 text-5xl" aria-hidden="true"></i>
+                </div>
+                {% if current_user.logo_filename %}
+                <button type="button" id="remove-defaultadmin-logo-btn" aria-label="Remove Logo" class="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-1 shadow hover:bg-red-100 focus:outline-none" tabindex="0">
+                    <i class="fas fa-times text-red-600"></i>
+                </button>
+                {% endif %}
+                <div id="defaultadmin-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-70">
+                    <svg class="animate-spin h-8 w-8 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                </div>
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="logo">Upload New Logo</label>
+                <input type="file" name="logo" id="logo" accept="image/*" aria-label="Upload Logo"
+                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                <p class="mt-2 text-sm text-gray-500">PNG, JPG, JPEG or GIF (max. 5MB)</p>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded transition duration-200" id="saveDefaultAdminLogoBtn">
+                Save Logo
+            </button>
+        </div>
+    </form>
+    <div id="defaultadmin-toast" class="fixed top-6 right-6 z-50 hidden px-4 py-3 rounded shadow-lg text-white font-semibold"></div>
+</div>
+
+<script>
+// Default Admin Logo Preview
+const defaultAdminLogoInput = document.getElementById('logo');
+const defaultAdminLogoPreview = document.getElementById('defaultadmin-logo-preview');
+const defaultAdminLogoPlaceholder = document.getElementById('defaultadmin-logo-placeholder');
+const defaultAdminSpinner = document.getElementById('defaultadmin-spinner');
+const defaultAdminSaveBtn = document.getElementById('saveDefaultAdminLogoBtn');
+
+if (defaultAdminLogoInput) {
+    defaultAdminLogoInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                showToast('File is too large. Max size is 5MB.', 'error');
+                this.value = '';
+                defaultAdminLogoPreview.classList.add('hidden');
+                defaultAdminLogoPlaceholder.classList.remove('hidden');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                defaultAdminLogoPreview.src = e.target.result;
+                defaultAdminLogoPreview.classList.remove('hidden');
+                defaultAdminLogoPlaceholder.classList.add('hidden');
+            }
+            reader.readAsDataURL(file);
+        } else {
+            defaultAdminLogoPreview.classList.add('hidden');
+            defaultAdminLogoPlaceholder.classList.remove('hidden');
+        }
+    });
+}
+
+// Remove Default Admin Logo
+const removeDefaultAdminLogoBtn = document.getElementById('remove-defaultadmin-logo-btn');
+if (removeDefaultAdminLogoBtn) {
+    removeDefaultAdminLogoBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to remove the logo?')) {
+            let input = document.getElementById('remove_logo');
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'remove_logo';
+                input.id = 'remove_logo';
+                input.value = '1';
+                document.getElementById('defaultAdminLogoForm').appendChild(input);
+            }
+            defaultAdminLogoPreview.classList.add('hidden');
+            defaultAdminLogoPlaceholder.classList.remove('hidden');
+        }
+    });
+}
+
+// Loading spinner on submit
+const defaultAdminLogoForm = document.getElementById('defaultAdminLogoForm');
+if (defaultAdminLogoForm) {
+    defaultAdminLogoForm.addEventListener('submit', function(e) {
+        defaultAdminSpinner.classList.remove('hidden');
+        defaultAdminSaveBtn.setAttribute('disabled', 'disabled');
+    });
+}
+
+// Toast notifications
+function showToast(message, type) {
+    const toast = document.getElementById('defaultadmin-toast');
+    toast.textContent = message;
+    toast.className = 'fixed top-6 right-6 z-50 px-4 py-3 rounded shadow-lg text-white font-semibold ' + (type === 'error' ? 'bg-red-600' : 'bg-green-700');
+    toast.classList.remove('hidden');
+    setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+}
+</script>
+{% else %}
+<div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto mt-8">
+    <h2 class="text-2xl font-bold text-green-800 mb-6">Barangay Logo Settings</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-8" id="logoForm">
+        <div class="flex items-center space-x-8">
+            <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-green-200 flex items-center justify-center relative" aria-label="Barangay Logo Preview">
+                <img id="logo-preview" src="{% if barangay and barangay.logo_filename %}{{ url_for('static', filename='uploads/barangay_logos/' ~ barangay.logo_filename) }}{% endif %}" alt="Barangay Logo" class="w-full h-full object-cover {% if not barangay or not barangay.logo_filename %}hidden{% endif %}" />
+                <div id="logo-placeholder" class="w-full h-full flex items-center justify-center bg-gray-200 absolute top-0 left-0 {% if barangay and barangay.logo_filename %}hidden{% endif %}">
+                    <i class="fas fa-building text-gray-400 text-5xl" aria-hidden="true"></i>
+                </div>
+                {% if barangay and barangay.logo_filename %}
+                <button type="button" id="remove-logo-btn" aria-label="Remove Logo" class="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-1 shadow hover:bg-red-100 focus:outline-none" tabindex="0">
+                    <i class="fas fa-times text-red-600"></i>
+                </button>
+                {% endif %}
+                <div id="spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-70">
+                    <svg class="animate-spin h-8 w-8 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                </div>
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="logo">Upload New Logo</label>
+                <input type="file" name="logo" id="logo" accept="image/*" aria-label="Upload Logo"
+                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+                <p class="mt-2 text-sm text-gray-500">PNG, JPG, JPEG or GIF (max. 5MB)</p>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button type="submit" class="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-6 rounded transition duration-200" id="saveLogoBtn">
+                Save Logo
+            </button>
+        </div>
+    </form>
+    <div id="toast" class="fixed top-6 right-6 z-50 hidden px-4 py-3 rounded shadow-lg text-white font-semibold"></div>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-green-800">Settings</h1>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <!-- Theme Colors Section -->
+        <div class="border-b pb-6">
+            <h2 class="text-lg font-semibold mb-4">Theme Colors</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Primary Color -->
+                <div>
+                    <label for="primary_color" class="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="color" name="primary_color" id="primary_color" 
+                               value="{{ barangay.primary_color or '#166534' }}"
+                               class="h-10 w-20 rounded cursor-pointer">
+                        <input type="text" value="{{ barangay.primary_color or '#166534' }}"
+                               class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                               onchange="document.getElementById('primary_color').value = this.value">
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">Used for main headings and buttons</p>
+                </div>
+
+                <!-- Secondary Color -->
+                <div>
+                    <label for="secondary_color" class="block text-sm font-medium text-gray-700 mb-2">Secondary Color</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="color" name="secondary_color" id="secondary_color" 
+                               value="{{ barangay.secondary_color or '#15803d' }}"
+                               class="h-10 w-20 rounded cursor-pointer">
+                        <input type="text" value="{{ barangay.secondary_color or '#15803d' }}"
+                               class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                               onchange="document.getElementById('secondary_color').value = this.value">
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">Used for hover states</p>
+                </div>
+
+                <!-- Accent Color -->
+                <div>
+                    <label for="accent_color" class="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="color" name="accent_color" id="accent_color" 
+                               value="{{ barangay.accent_color or '#16a34a' }}"
+                               class="h-10 w-20 rounded cursor-pointer">
+                        <input type="text" value="{{ barangay.accent_color or '#16a34a' }}"
+                               class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                               onchange="document.getElementById('accent_color').value = this.value">
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">Used for focus states</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="border-b pb-6">
+            <h2 class="text-lg font-semibold mb-4">Theme Preview</h2>
+            <div class="p-6 border rounded-lg">
+                <h3 class="text-xl font-bold mb-4" style="color: {{ barangay.primary_color or '#166534' }}">Sample Heading</h3>
+                <div class="space-y-4">
+                    <button type="button" class="px-4 py-2 rounded text-white" 
+                            style="background-color: {{ barangay.primary_color or '#166534' }}">
+                        Primary Button
+                    </button>
+                    <button type="button" class="px-4 py-2 rounded text-white" 
+                            style="background-color: {{ barangay.secondary_color or '#15803d' }}">
+                        Secondary Button
+                    </button>
+                    <button type="button" class="px-4 py-2 rounded text-white" 
+                            style="background-color: {{ barangay.accent_color or '#16a34a' }}">
+                        Accent Button
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+            <a href="{{ url_for('main.home') }}" 
+               class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% block scripts %}
+<script>
+// Accessibility: focus on file input when label is clicked
+const logoInput = document.getElementById('logo');
+document.querySelector('label[for="logo"]').addEventListener('click', () => logoInput.focus());
+
+// Instant preview and file size validation
+logoInput.addEventListener('change', function() {
+    const file = this.files[0];
+    const preview = document.getElementById('logo-preview');
+    const placeholder = document.getElementById('logo-placeholder');
+    if (file) {
+        if (file.size > 5 * 1024 * 1024) { // 5MB
+            showToast('File is too large. Max size is 5MB.', 'error');
+            this.value = '';
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+    }
+});
+
+// Remove logo button
+const removeBtn = document.getElementById('remove-logo-btn');
+if (removeBtn) {
+    removeBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to remove the logo?')) {
+            // Set a hidden input to signal removal
+            let input = document.getElementById('remove_logo');
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'remove_logo';
+                input.id = 'remove_logo';
+                input.value = '1';
+                document.getElementById('logoForm').appendChild(input);
+            }
+            // Hide preview and show placeholder
+            document.getElementById('logo-preview').classList.add('hidden');
+            document.getElementById('logo-placeholder').classList.remove('hidden');
+        }
+    });
+}
+
+// Loading spinner on submit
+const logoForm = document.getElementById('logoForm');
+logoForm.addEventListener('submit', function(e) {
+    document.getElementById('spinner').classList.remove('hidden');
+    document.getElementById('saveLogoBtn').setAttribute('disabled', 'disabled');
+});
+
+// Toast notifications
+function showToast(message, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'fixed top-6 right-6 z-50 px-4 py-3 rounded shadow-lg text-white font-semibold ' + (type === 'error' ? 'bg-red-600' : 'bg-green-700');
+    toast.classList.remove('hidden');
+    setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+}
+</script>
+{% endblock %}
+{% endblock %}

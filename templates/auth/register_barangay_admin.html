@@ -1,0 +1,84 @@
+{% extends 'minimal_layout.html' %}
+{% block title %}Register Barangay Admin{% endblock %}
+{% block extra_head %}
+<style>
+    /* Removed empty body.login-bg rule to fix linter errors */
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('login-bg');
+});
+</script>
+{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen" style="background: url('{{ url_for('static', filename='uploads/login-bg.jpg') }}') center center / cover no-repeat fixed;">
+    <div class="w-full max-w-md bg-white bg-opacity-90 backdrop-blur-sm shadow-2xl rounded-2xl p-8 mt-8">
+        <div class="flex flex-col items-center mb-6">
+            <div class="h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center mb-2 shadow">
+                <i class="fas fa-user-shield text-3xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-blue-800 mb-2">Register a New Barangay</h2>
+            <p class="text-gray-500 text-sm">Fill in the details below to register a new barangay and its admin.</p>
+        </div>
+        <form method="POST" class="space-y-5">
+            <div>
+                <label for="barangay_name" class="block text-gray-700 font-semibold mb-1">Barangay Name</label>
+                <div class="relative">
+                    <input type="text" name="barangay_name" id="barangay_name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter Barangay Name">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-building"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="barangay_city" class="block text-gray-700 font-semibold mb-1">City</label>
+                <div class="relative">
+                    <input type="text" name="barangay_city" id="barangay_city" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter City">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-city"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="barangay_address" class="block text-gray-700 font-semibold mb-1">Barangay Address</label>
+                <div class="relative">
+                    <input type="text" name="barangay_address" id="barangay_address" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter Barangay Address">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-map-marker-alt"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="username" class="block text-gray-700 font-semibold mb-1">Admin Username</label>
+                <div class="relative">
+                    <input type="text" name="username" id="username" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter Admin Username">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-user-circle"></i></span>
+                </div>
+            </div>
+            <div>
+                <label for="email" class="block text-gray-700 font-semibold mb-1">Admin Email</label>
+                <div class="relative">
+                    <input type="email" name="email" id="email" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter Admin Email">
+                    <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-envelope"></i></span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="password" class="block text-gray-700 font-semibold mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" name="password" id="password" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Enter Password">
+                        <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+                <div>
+                    <label for="password_confirm" class="block text-gray-700 font-semibold mb-1">Confirm Password</label>
+                    <div class="relative">
+                        <input type="password" name="password_confirm" id="password_confirm" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 pl-10" placeholder="Confirm Password">
+                        <span class="absolute left-3 top-2.5 text-blue-400"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-700 to-green-600 hover:from-blue-800 hover:to-green-700 text-white font-bold py-2 px-4 rounded-lg shadow transition duration-200 text-lg mt-2">
+                <i class="fas fa-user-shield mr-2"></i> Register Barangay
+            </button>
+        </form>
+        <div class="mt-6 text-center">
+            <a href="{{ url_for('auth.login') }}" class="text-blue-700 hover:underline">Already have an account? Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

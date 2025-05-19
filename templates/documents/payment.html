@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block title %}Payment Required | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/documents">Documents</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('documents.payment_form', document_id=document.id) }}" aria-current="page">
+        Payment Required
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4 text-yellow-800">Payment Required</h2>
+    
+    <div class="bg-blue-50 p-4 rounded mb-6">
+        <h3 class="font-semibold text-blue-800">Document Details:</h3>
+        <p><strong>Type:</strong> {{ document.document_type }}</p>
+        <p><strong>Resident:</strong> {{ document.resident.first_name }} {{ document.resident.last_name }}</p>
+        <p><strong>Purpose:</strong> {{ document.purpose }}</p>
+        <p class="text-xl font-bold text-red-600"><strong>Amount: ₱{{ document.amount }}</strong></p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('documents.process_payment', document_id=document.id) }}">
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+                Payment Method <span class="text-red-500">*</span>
+            </label>
+            <select name="payment_method" class="w-full p-2 border rounded" required>
+                <option value="">Select Payment Method</option>
+                <option value="cash">Cash</option>
+                <option value="gcash">GCash</option>
+                <option value="maya">Maya</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="check">Check</option>
+            </select>
+        </div>
+        
+        <div class="flex space-x-4">
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                <i class="fas fa-check mr-2"></i>Pay Now
+            </button>
+            <a href="{{ url_for('documents.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %} 

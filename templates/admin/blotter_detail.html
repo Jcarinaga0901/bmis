@@ -1,0 +1,120 @@
+{% extends "base.html" %} {# Assuming you have a base.html template #}
+
+{% block title %}Blotter Case: {{ blotter.case_number }}{% endblock %}
+
+{% block head_extra %}
+<style>
+    .detail-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    .detail-container h1 {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    .detail-item {
+        margin-bottom: 15px;
+    }
+    .detail-item strong {
+        display: inline-block;
+        width: 180px; /* Adjust as needed */
+        color: #555;
+    }
+    .actions a {
+        display: inline-block;
+        margin-top: 20px;
+        margin-right: 10px;
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .actions a:hover {
+        background-color: #0056b3;
+    }
+    .actions .edit-button {
+        background-color: #f0ad4e;
+    }
+     .actions .edit-button:hover {
+        background-color: #ec971f;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <h1>Blotter Details: Case #{{ blotter.case_number }}</h1>
+
+    <div class="detail-item">
+        <strong>Case Number:</strong> {{ blotter.case_number }}
+    </div>
+    <div class="detail-item">
+        <strong>Incident Type:</strong> {{ blotter.incident_type }}
+    </div>
+    <div class="detail-item">
+        <strong>Incident Datetime:</strong> {{ blotter.incident_datetime.strftime('%Y-%m-%d %I:%M %p') if blotter.incident_datetime else 'N/A' }}
+    </div>
+    <div class="detail-item">
+        <strong>Reported Datetime:</strong> {{ blotter.reported_datetime.strftime('%Y-%m-%d %I:%M %p') if blotter.reported_datetime else 'N/A' }}
+    </div>
+    <div class="detail-item">
+        <strong>Incident Location:</strong> {{ blotter.incident_location }}
+    </div>
+    <div class="detail-item">
+        <strong>Status:</strong> {{ blotter.status }}
+    </div>
+
+    <hr>
+
+    <div class="detail-item">
+        <strong>Complainant:</strong>
+        {% if blotter.complainant_resident_info %}
+            <a href="{{ blotter.complainant_resident_info.get_absolute_url() }}">
+                {{ blotter.complainant_resident_info.first_name }} {{ blotter.complainant_resident_info.last_name }}
+            </a>
+            (ID: {{ blotter.complainant_resident_id }})
+        {% elif blotter.complainant_name %} {# Assuming you might store non-resident complainant names #}
+            {{ blotter.complainant_name }} (Non-Resident)
+        {% else %}
+            N/A
+        {% endif %}
+    </div>
+
+    <div class="detail-item">
+        <strong>Respondent:</strong>
+        {% if blotter.respondent_resident_info %}
+            <a href="{{ blotter.respondent_resident_info.get_absolute_url() }}">
+                {{ blotter.respondent_resident_info.first_name }} {{ blotter.respondent_resident_info.last_name }}
+            </a>
+            (ID: {{ blotter.respondent_resident_id }})
+        {% elif blotter.respondent_name %} {# Assuming you might store non-resident respondent names #}
+            {{ blotter.respondent_name }} (Non-Resident or Unidentified)
+        {% else %}
+            N/A
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <div class="detail-item">
+        <strong>Details of Incident:</strong>
+        <p style="white-space: pre-wrap;">{{ blotter.details }}</p>
+    </div>
+    
+    <div class="detail-item">
+        <strong>Record Created At:</strong> {{ blotter.created_at.strftime('%Y-%m-%d %H:%M:%S') if blotter.created_at else 'N/A' }}
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('admin_blotter_list') }}">Back to Blotter List</a>
+        <a href="{{ url_for('admin_edit_blotter', blotter_id=blotter.id) }}" class="edit-button">Edit This Blotter</a>
+        {# Add other actions like 'Resolve Blotter', 'Print Blotter' etc. as needed #}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit {{ resident.get_full_name() }} | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/residents">Residents</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('residents.view_resident', resident_id=resident.id) }}">
+        {{ resident.get_full_name() }}
+    </a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('residents.edit_resident', resident_id=resident.id) }}" aria-current="page">Edit</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-green-800">Edit Resident</h1>
+        <a href="{{ url_for('residents.residents') }}" class="text-gray-600 hover:text-gray-800">
+            <i class="fas fa-times"></i>
+        </a>
+    </div>
+
+    <form action="{{ url_for('residents.edit_resident', resident_id=resident.id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Photo Upload Section -->
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center space-x-6">
+                    <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
+                        {% if resident.photo_filename %}
+                            <img src="{{ url_for('static', filename='uploads/residents/' ~ resident.photo_filename) }}" 
+                                 alt="{{ resident.get_full_name() }}"
+                                 class="w-full h-full object-cover"
+                                 id="photoPreview">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center bg-gray-200" id="photoPlaceholder">
+                                <i class="fas fa-user text-gray-400 text-4xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Resident Photo</label>
+                        <div class="flex items-center space-x-4">
+                            <label class="cursor-pointer bg-white px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <span>Change Photo</span>
+                                <input type="file" name="photo" class="hidden" accept="image/*" onchange="previewPhoto(this)">
+                            </label>
+                            {% if resident.photo_filename %}
+                            <button type="button" onclick="removePhoto()" class="text-red-600 hover:text-red-800 text-sm">
+                                <i class="fas fa-trash-alt mr-1"></i> Remove
+                            </button>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">PNG, JPG, JPEG or GIF (max. 5MB)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Name Fields -->
+            <div>
+                <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                <input type="text" name="first_name" id="first_name" value="{{ resident.first_name }}" required
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+
+            <div>
+                <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                <input type="text" name="last_name" id="last_name" value="{{ resident.last_name }}" required
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+
+            <div>
+                <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
+                <input type="text" name="middle_name" id="middle_name" value="{{ resident.middle_name }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+
+            <div>
+                <label for="birth_date" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                <input type="date" name="birth_date" id="birth_date" value="{{ resident.birth_date.strftime('%Y-%m-%d') }}" required
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+
+            <div>
+                <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                <select name="gender" id="gender" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    <option value="Male" {% if resident.gender == 'Male' %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if resident.gender == 'Female' %}selected{% endif %}>Female</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="civil_status" class="block text-sm font-medium text-gray-700">Civil Status</label>
+                <select name="civil_status" id="civil_status" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    <option value="Single" {% if resident.civil_status == 'Single' %}selected{% endif %}>Single</option>
+                    <option value="Married" {% if resident.civil_status == 'Married' %}selected{% endif %}>Married</option>
+                    <option value="Widowed" {% if resident.civil_status == 'Widowed' %}selected{% endif %}>Widowed</option>
+                    <option value="Separated" {% if resident.civil_status == 'Separated' %}selected{% endif %}>Separated</option>
+                    <option value="Divorced" {% if resident.civil_status == 'Divorced' %}selected{% endif %}>Divorced</option>
+                </select>
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                <input type="text" name="address" id="address" value="{{ resident.address }}" required
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+
+            <div>
+                <label for="contact_number" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                <input type="tel" name="contact_number" id="contact_number" value="{{ resident.contact_number }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" id="email" value="{{ resident.email }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+
+            <div>
+                <label for="occupation" class="block text-sm font-medium text-gray-700">Occupation</label>
+                <input type="text" name="occupation" id="occupation" value="{{ resident.occupation }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-6 border-t">
+            <a href="{{ url_for('residents.residents') }}" 
+               class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block scripts %}
+<script>
+function previewPhoto(input) {
+    const file = input.files[0];
+    if (file) {
+        if (file.size > 5 * 1024 * 1024) { // 5MB
+            alert('File size exceeds 5MB limit');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('photoPreview');
+            const placeholder = document.getElementById('photoPlaceholder');
+            
+            if (preview) {
+                preview.src = e.target.result;
+            } else {
+                placeholder.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function removePhoto() {
+    const preview = document.getElementById('photoPreview');
+    const placeholder = document.getElementById('photoPlaceholder');
+    
+    if (preview) {
+        preview.remove();
+        placeholder.innerHTML = '<i class="fas fa-user text-gray-400 text-4xl"></i>';
+    }
+    
+    // Add a hidden input to indicate photo removal
+    const form = document.querySelector('form');
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'remove_photo';
+    input.value = '1';
+    form.appendChild(input);
+}
+</script>
+{% endblock %}
+{% endblock %} 

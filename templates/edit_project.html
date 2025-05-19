@@ -1,0 +1,85 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit {{ project.name }} | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/projects">Projects</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('projects.view_project', project_id=project.id) }}">
+        {{ project.name }}
+    </a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('projects.edit_project', project_id=project.id) }}" aria-current="page">Edit</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-purple-800 mb-6">
+        Edit Project: {{ project.name }}
+    </h1>
+    
+    <form method="POST" action="{{ url_for('projects.edit_project', project_id=project.id) }}">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                <label for="name" class="block text-gray-700 font-medium mb-2">Project Name</label>
+                <input type="text" name="name" id="name" value="{{ project.name }}" required 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="description" class="block text-gray-700 font-medium mb-2">Description</label>
+                <textarea name="description" id="description" rows="5" required 
+                          class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">{{ project.description }}</textarea>
+            </div>
+            
+            <div>
+                <label for="start_date" class="block text-gray-700 font-medium mb-2">Start Date</label>
+                <input type="date" name="start_date" id="start_date" value="{{ project.start_date.strftime('%Y-%m-%d') }}" required 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            
+            <div>
+                <label for="end_date" class="block text-gray-700 font-medium mb-2">End Date (if applicable)</label>
+                <input type="date" name="end_date" id="end_date" value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            
+            <div>
+                <label for="budget" class="block text-gray-700 font-medium mb-2">Budget (₱)</label>
+                <input type="number" name="budget" id="budget" step="0.01" value="{{ project.budget if project.budget else '' }}" 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            
+            <div>
+                <label for="status" class="block text-gray-700 font-medium mb-2">Status</label>
+                <select name="status" id="status" required 
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="Planned" {% if project.status == 'Planned' %}selected{% endif %}>Planned</option>
+                    <option value="Ongoing" {% if project.status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                    <option value="Completed" {% if project.status == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if project.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mt-8 flex justify-end">
+            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 mr-4">
+                Cancel
+            </a>
+            <button type="submit" class="bg-purple-800 text-white py-2 px-4 rounded hover:bg-purple-700">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

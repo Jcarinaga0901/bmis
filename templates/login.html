@@ -1,0 +1,13 @@
+{% block extra_head %}
+<style>
+body.login-bg {
+    background: url('{{ url_for('static', filename='uploads/login-bg.jpg') }}') no-repeat center center fixed;
+    background-size: cover;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('login-bg');
+});
+</script>
+{% endblock %}

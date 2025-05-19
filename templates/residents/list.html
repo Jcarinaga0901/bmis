@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Residents</h1>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    {% for resident in residents %}
+    <tr>
+        <td>{{ resident.first_name }} {{ resident.last_name }}</td>
+        <td>
+            <a href="{{ url_for('residents.edit_resident', resident_id=resident.id) }}">Edit</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

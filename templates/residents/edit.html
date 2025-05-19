@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit {{ resident.first_name }} {{ resident.last_name }} | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="/residents">Residents</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('residents.view_resident', resident_id=resident.id) }}">
+        {{ resident.first_name }} {{ resident.last_name }}
+    </a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('residents.edit_resident', resident_id=resident.id) }}" aria-current="page">
+        Edit
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-blue-800 mb-6">
+        Edit Resident: {{ resident.first_name }} {{ resident.last_name }}
+    </h1>
+    
+    <form method="POST" action="{{ url_for('residents.edit_resident', resident_id=resident.id) }}">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <input type="text" name="first_name" id="first_name" value="{{ resident.first_name }}" required 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <input type="text" name="last_name" id="last_name" value="{{ resident.last_name }}" required 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <input type="text" name="address" id="address" value="{{ resident.address }}" required 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                <input type="tel" name="contact_number" id="contact_number" value="{{ resident.contact_number }}" 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" name="email" id="email" value="{{ resident.email }}" 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                <input type="date" name="birth_date" id="birth_date" value="{{ resident.birth_date.strftime('%Y-%m-%d') }}" required 
+                       class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+        
+        <div class="mt-8 flex justify-end space-x-4">
+            <a href="{{ url_for('residents.view_resident', resident_id=resident.id) }}" 
+               class="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="bg-blue-800 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

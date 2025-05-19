@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block title %}All Document Requests | Admin | Barangay Management System{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-blue-800">All Document Requests</h1>
+    <form method="get" class="flex flex-col md:flex-row gap-4 mb-6">
+        <input type="text" name="search" value="{{ search or '' }}" placeholder="Search by resident or document type..." class="w-full md:w-1/3 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <select name="barangay_id" class="w-full md:w-1/4 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Barangays</option>
+            {% for barangay in barangays %}
+                <option value="{{ barangay.id }}" {% if selected_barangay == barangay.id %}selected{% endif %}>{{ barangay.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800">Filter</button>
+    </form>
+    <div class="overflow-x-auto bg-white rounded-lg shadow-md">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-blue-100">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Resident Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Document Type</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Barangay</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Date Requested</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-blue-800 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for document in documents %}
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="px-4 py-3">{{ document.resident.last_name }}, {{ document.resident.first_name }}</td>
+                    <td class="px-4 py-3">{{ document.document_type }}</td>
+                    <td class="px-4 py-3">{{ document.barangay.name if document.barangay else '-' }}</td>
+                    <td class="px-4 py-3">{{ document.status }}</td>
+                    <td class="px-4 py-3">{{ document.date_requested.strftime('%Y-%m-%d') if document.date_requested else '-' }}</td>
+                    <td class="px-4 py-3">
+                        <a href="#" class="text-blue-600 hover:underline">View</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-gray-400 py-8">No document requests found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

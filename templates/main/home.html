@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+{% block title %}Resident Home{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-12 bg-white p-8 rounded-lg shadow">
+    <h1 class="text-3xl font-bold text-green-800 mb-4">Welcome, {{ current_user.full_name }}!</h1>
+    <p class="text-gray-700 text-lg mb-4">You are now logged in as a resident.</p>
+    <p class="text-gray-500">This is your dashboard. Here you can view announcements, manage your profile, and access barangay services.</p>
+</div>
+{% endblock %} 

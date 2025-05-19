@@ -1,0 +1,284 @@
+{% block head %}
+<style>
+    :root {
+        --primary-color: {{ barangay.primary_color or '#166534' }};
+        --secondary-color: {{ barangay.secondary_color or '#15803d' }};
+        --accent-color: {{ barangay.accent_color or '#16a34a' }};
+    }
+    .text-primary { color: var(--primary-color); }
+    .bg-primary { background-color: var(--primary-color); }
+    .border-primary { border-color: var(--primary-color); }
+    .hover\:bg-primary:hover { background-color: var(--primary-color); }
+    .hover\:text-primary:hover { color: var(--primary-color); }
+    .focus\:ring-primary:focus { --tw-ring-color: var(--primary-color); }
+    .text-secondary { color: var(--secondary-color); }
+    .bg-secondary { background-color: var(--secondary-color); }
+    .border-secondary { border-color: var(--secondary-color); }
+    .hover\:bg-secondary:hover { background-color: var(--secondary-color); }
+    .hover\:text-secondary:hover { color: var(--secondary-color); }
+    .focus\:ring-secondary:focus { --tw-ring-color: var(--secondary-color); }
+    .text-accent { color: var(--accent-color); }
+    .bg-accent { background-color: var(--accent-color); }
+    .border-accent { border-color: var(--accent-color); }
+    .hover\:bg-accent:hover { background-color: var(--accent-color); }
+    .hover\:text-accent:hover { color: var(--accent-color); }
+    .focus\:ring-accent:focus { --tw-ring-color: var(--accent-color); }
+</style>
+{% endblock %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Barangay Management System - Efficiently manage residents, documents, officials, and projects">
+    <title>{% block title %}Barangay Management System{% endblock %}</title>
+    
+    <!-- External CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Alpine.js for interactive components -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    {% block extra_head %}{% endblock %}
+
+    <!-- Chatbot styles -->
+    <style>
+        #chatbot {
+            z-index: 9999;
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+        }
+        #chat-window {
+            width: 24rem;
+            max-height: calc(100vh - 6rem);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <div class="flex min-h-screen">
+    <!-- Sidebar -->
+        <aside class="bg-blue-800 text-white w-64 flex-shrink-0 flex flex-col">
+            <div class="flex flex-col items-center py-8 border-b border-blue-900">
+                {% if current_user.is_authenticated and current_user.role == 'super_admin' %}
+                    {% if current_user.logo_filename %}
+                        <img src="{{ url_for('static', filename='uploads/superadmin_logos/' ~ current_user.logo_filename) }}" alt="Super Admin Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/quezon_city_logo.png') }}" alt="Quezon City Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    {% endif %}
+                    <span class="text-lg font-bold mt-2 text-center">Barangay Management System</span>
+                {% elif barangay and barangay.logo_filename %}
+                    <img src="{{ url_for('static', filename='uploads/barangay_logos/' ~ barangay.logo_filename) }}" alt="Barangay Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    <span class="text-lg font-bold mt-2 text-center">Barangay Management System</span>
+                {% else %}
+                    <div class="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center mb-2">
+                        <i class="fas fa-building text-3xl"></i>
+                    </div>
+                    <span class="text-lg font-bold mt-2 text-center">Barangay Management System</span>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                    <div class="mt-2 text-sm">Hello, <span class="font-semibold">{{ current_user.first_name or 'Admin' }}</span></div>
+                {% endif %}
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="{{ url_for('main.home') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700 {% if request.path == '/' %}bg-blue-700{% endif %}"><i class="fas fa-tachometer-alt mr-3"></i> Dashboard</a>
+                <a href="{{ url_for('residents.index') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700"><i class="fas fa-users mr-3"></i> Residents</a>
+                <a href="{{ url_for('officials.officials') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700"><i class="fas fa-user-tie mr-3"></i> Officials</a>
+                <a href="{{ url_for('documents.index') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700"><i class="fas fa-file-alt mr-3"></i> Documents</a>
+                <a href="{{ url_for('announcements.announcements') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700"><i class="fas fa-bullhorn mr-3"></i> Announcements</a>
+                {% if current_user.is_authenticated and not current_user.is_admin() %}
+                    <a href="{{ url_for('main.report_blotter') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-exclamation-triangle mr-3"></i> Blotter Create
+                    </a>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.is_admin() %}
+                    <a href="{{ url_for('admin.list_blotters') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-book mr-3"></i> Manage Blotters
+                    </a>
+                    <a href="{{ url_for('settings.settings') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700 bg-blue-900"><i class="fas fa-cog mr-3"></i> Settings</a>
+                {% endif %}
+            </nav>
+            <div class="p-4 border-t border-blue-900">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700"><i class="fas fa-sign-out-alt mr-3"></i> Log Out</a>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="flex items-center px-3 py-2 rounded hover:bg-blue-700"><i class="fas fa-sign-in-alt mr-3"></i> Log In</a>
+                    {% endif %}
+            </div>
+        </aside>
+        <!-- Mobile Sidebar Toggle -->
+        <div class="md:hidden fixed top-0 left-0 z-50">
+            <button id="sidebarToggle" class="m-2 p-2 rounded bg-primary text-white focus:outline-none focus:ring-2 focus:ring-accent">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <aside id="mobileSidebar" class="fixed top-0 left-0 h-full w-64 bg-primary text-white z-40 transform -translate-x-full transition-transform duration-200 md:hidden flex flex-col">
+            <div class="flex flex-col items-center py-8 border-b border-green-900">
+                {% if current_user.is_authenticated and current_user.role == 'super_admin' %}
+                    {% if current_user.logo_filename %}
+                        <img src="{{ url_for('static', filename='uploads/superadmin_logos/' ~ current_user.logo_filename) }}" alt="Super Admin Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/quezon_city_logo.png') }}" alt="Quezon City Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    {% endif %}
+                    <span class="text-lg font-bold mt-2 text-center">Barangay Management System</span>
+                {% elif current_user.is_authenticated and current_user.role == 'default_admin' %}
+                    {% if current_user.logo_filename %}
+                        <img src="{{ url_for('static', filename='uploads/default_admin_logos/' ~ current_user.logo_filename) }}" alt="Default Admin Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/quezon_city_logo.png') }}" alt="Quezon City Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    {% endif %}
+                    <span class="text-lg font-bold mt-2 text-center">Barangay Management System</span>
+                {% elif barangay and barangay.logo_filename %}
+                    <img src="{{ url_for('static', filename='uploads/barangay_logos/' ~ barangay.logo_filename) }}" alt="Barangay Logo" class="h-20 w-20 rounded-full object-cover border-2 border-white mb-2">
+                    <span class="text-lg font-bold mt-2 text-center">Barangay Management System</span>
+                {% else %}
+                    <div class="h-20 w-20 rounded-full bg-green-700 flex items-center justify-center mb-2">
+                        <i class="fas fa-building text-3xl"></i>
+                    </div>
+                    <span class="text-lg font-bold mt-2 text-center">Barangay Management System</span>
+                {% endif %}
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="{{ url_for('main.home') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800 {% if request.path == '/' %}bg-green-800{% endif %}"><i class="fas fa-tachometer-alt mr-3"></i> Dashboard</a>
+                <a href="{{ url_for('residents.index') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800"><i class="fas fa-users mr-3"></i> Residents</a>
+                <a href="{{ url_for('officials.officials') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800"><i class="fas fa-user-tie mr-3"></i> Officials</a>
+                <a href="{{ url_for('documents.index') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800"><i class="fas fa-file-alt mr-3"></i> Documents</a>
+                <a href="{{ url_for('announcements.announcements') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800"><i class="fas fa-bullhorn mr-3"></i> Announcements</a>
+                {% if current_user.is_authenticated and not current_user.is_admin() %}
+                    <a href="{{ url_for('main.report_blotter') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800">
+                        <i class="fas fa-exclamation-triangle mr-3"></i> Blotter Create
+                    </a>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.is_admin() %}
+                    <a href="{{ url_for('admin.list_blotters') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800">
+                        <i class="fas fa-book mr-3"></i> Manage Blotters
+                    </a>
+                    <a href="{{ url_for('settings.settings') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800 bg-green-900"><i class="fas fa-cog mr-3"></i> Settings</a>
+                {% endif %}
+            </nav>
+            <div class="p-4 border-t border-green-900">
+                {% if current_user.is_authenticated %}
+                    <div class="mb-2">Hello, <span class="font-semibold">{{ current_user.first_name or 'Admin' }}</span></div>
+                    <a href="{{ url_for('auth.logout') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800"><i class="fas fa-sign-out-alt mr-3"></i> Log Out</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="flex items-center px-3 py-2 rounded hover:bg-green-800"><i class="fas fa-sign-in-alt mr-3"></i> Log In</a>
+                {% endif %}
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Top Bar -->
+            <header class="bg-white shadow flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="mobileSidebarOpen" class="md:hidden text-primary focus:outline-none"><i class="fas fa-bars"></i></button>
+                    <span class="text-xl font-bold text-primary">Barangay Management System</span>
+        </div>
+                <div class="flex items-center space-x-4">
+                    {% if current_user.is_authenticated %}
+                        <span class="text-gray-700">{{ current_user.full_name or current_user.username }}</span>
+                        <a href="{{ url_for('auth.logout') }}" class="text-primary hover:text-accent"><i class="fas fa-sign-out-alt"></i></a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-primary hover:text-accent"><i class="fas fa-sign-in-alt"></i></a>
+                    {% endif %}
+                </div>
+            </header>
+            <main class="flex-1 p-6 bg-gray-100">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                            <div class="mb-4 p-4 rounded {% if category == 'error' %}bg-red-100 text-red-700{% elif category == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+            <footer class="bg-blue-800 text-white py-4 mt-auto text-center">
+                &copy; {{ now.year }} Barangay Management System. All rights reserved.
+            </footer>
+        </div>
+    </div>
+    <script>
+        // Mobile sidebar toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileSidebar = document.getElementById('mobileSidebar');
+        const mobileSidebarOpen = document.getElementById('mobileSidebarOpen');
+        if (sidebarToggle && mobileSidebar) {
+            sidebarToggle.addEventListener('click', () => {
+                mobileSidebar.classList.toggle('-translate-x-full');
+            });
+        }
+        if (mobileSidebarOpen && mobileSidebar) {
+            mobileSidebarOpen.addEventListener('click', () => {
+                mobileSidebar.classList.toggle('-translate-x-full');
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    <button id="ai-chatbox-toggle" class="fixed bottom-6 right-6 z-50 bg-blue-700 text-white p-4 rounded-full shadow-lg hover:bg-blue-800 focus:outline-none">
+        <i class="fas fa-robot text-2xl"></i>
+    </button>
+    <div id="ai-chatbox" class="fixed bottom-24 right-6 z-50 w-96 max-w-full bg-white rounded-2xl shadow-2xl border border-blue-200 flex flex-col transition-all duration-300 hidden">
+        <div class="flex items-center justify-between px-4 py-3 bg-blue-700 rounded-t-2xl">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-robot text-white text-2xl"></i>
+                <span class="text-white font-semibold">AI Assistant</span>
+            </div>
+            <button id="ai-chatbox-close" class="ml-2 text-white hover:text-gray-200"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="ai-messages" class="flex-1 overflow-y-auto p-4 space-y-3" style="max-height: 350px;">
+            <div class="flex items-start space-x-2">
+                <i class="fas fa-robot text-blue-700 text-2xl"></i>
+                <div class="bg-blue-100 text-blue-900 px-4 py-2 rounded-lg shadow">Hi! How can I help you? (Pwede kang magtanong sa Tagalog o English.)</div>
+            </div>
+        </div>
+        <form id="ai-form" class="flex items-center border-t px-2 py-2 bg-gray-50">
+            <input id="ai-input" type="text" placeholder="Type a message..." class="flex-1 px-3 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
+            <button type="submit" class="ml-2 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+    <script>
+    // Chatbox open/close logic
+    const chatbox = document.getElementById('ai-chatbox');
+    const toggleBtn = document.getElementById('ai-chatbox-toggle');
+    const closeBtn = document.getElementById('ai-chatbox-close');
+    toggleBtn.onclick = () => { chatbox.classList.remove('hidden'); toggleBtn.classList.add('hidden'); };
+    closeBtn.onclick = () => { chatbox.classList.add('hidden'); toggleBtn.classList.remove('hidden'); };
+    // Chat logic
+    document.getElementById('ai-form').onsubmit = async function(e) {
+        e.preventDefault();
+        const input = document.getElementById('ai-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+        addMessage(msg, 'user');
+        input.value = '';
+        const response = await fetch('/ai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await response.json();
+        addMessage(data.reply, 'ai');
+    };
+    function addMessage(text, sender) {
+        const messages = document.getElementById('ai-messages');
+        const div = document.createElement('div');
+        div.className = 'flex items-start space-x-2 mb-1';
+        if (sender === 'user') {
+            div.innerHTML = `<div class='flex-1 text-right'><div class='inline-block bg-blue-700 text-white px-4 py-2 rounded-lg shadow'>${text}</div></div><i class='fas fa-user text-blue-700 text-2xl'></i>`;
+        } else {
+            div.innerHTML = `<i class='fas fa-robot text-blue-700 text-2xl'></i><div class='bg-blue-100 text-blue-900 px-4 py-2 rounded-lg shadow'>${text}</div>`;
+        }
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+    </script>
+</body>
+</html>

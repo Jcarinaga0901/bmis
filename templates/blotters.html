@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block title %}Blotter Records{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Blotter Records</h1>
+    <table class="min-w-full bg-white border border-gray-200 rounded mb-4">
+        <thead>
+            <tr>
+                <th class="px-4 py-2 border">Case #</th>
+                <th class="px-4 py-2 border">Complainant</th>
+                <th class="px-4 py-2 border">Respondent</th>
+                <th class="px-4 py-2 border">Type</th>
+                <th class="px-4 py-2 border">Date</th>
+                <th class="px-4 py-2 border">Status</th>
+                <th class="px-4 py-2 border">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for blotter in blotter_pagination.items %}
+            <tr>
+                <td class="px-4 py-2 border">BLT-{{ blotter.incident_date.year if blotter.incident_date else '----' }}-{{ '%04d' % blotter.id }}</td>
+                <td class="px-4 py-2 border">{{ blotter.complainant_name }}</td>
+                <td class="px-4 py-2 border">{{ blotter.respondent_name }}</td>
+                <td class="px-4 py-2 border">{{ blotter.incident_type }}</td>
+                <td class="px-4 py-2 border">{{ blotter.incident_date.strftime('%Y-%m-%d') if blotter.incident_date else '' }}</td>
+                <td class="px-4 py-2 border">{{ blotter.status }}</td>
+                <td class="px-4 py-2 border">
+                    <a href="{{ url_for('main.blotter_details', blotter_id=blotter.id) }}" class="text-blue-600 hover:underline">View</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="px-4 py-2 border text-center text-gray-500">No blotter records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Pagination controls -->
+    <div class="flex justify-center space-x-2">
+        {% if blotter_pagination.has_prev %}
+            <a href="{{ url_for('main.view_blotters', page=blotter_pagination.prev_num) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Previous</a>
+        {% endif %}
+        <span class="px-3 py-1">Page {{ blotter_pagination.page }} of {{ blotter_pagination.pages }}</span>
+        {% if blotter_pagination.has_next %}
+            <a href="{{ url_for('main.view_blotters', page=blotter_pagination.next_num) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

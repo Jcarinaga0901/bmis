@@ -1,0 +1,129 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ 'Edit' if form.id.data else 'Add' }} Blotter Record | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('admin.index') }}">Admin Dashboard</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('admin.list_blotters') }}">Blotter Records</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="#" aria-current="page">{{ 'Edit' if form.id.data else 'Add' }} Blotter</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-red-800 mb-6">{{ 'Edit' if form.id.data else 'Add' }} Blotter Record</h1>
+    <form method="POST" action="" class="space-y-4">
+        {{ form.hidden_tag() }} {# For CSRF token if using Flask-WTF #}
+        {% for field in form %}
+          {% for error in field.errors %}
+            <div class="text-red-600">{{ field.label.text }}: {{ error }}</div>
+          {% endfor %}
+        {% endfor %}
+        
+        <div>
+            <label for="barangay_id" class="block text-sm font-medium text-gray-700">Barangay:</label>
+            {{ form.barangay_id(id="barangay_id", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50") }}
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="incident_type" class="block text-sm font-medium text-gray-700">Incident Type:</label>
+                {{ form.incident_type(id="incident_type", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50", placeholder="e.g., Theft, Disturbance, Assault") }}
+            </div>
+            <div>
+                <label for="incident_date" class="block text-sm font-medium text-gray-700">Incident Date:</label>
+                {{ form.incident_date(id="incident_date", type="date", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50") }}
+            </div>
+            <div>
+                <label for="incident_time" class="block text-sm font-medium text-gray-700">Incident Time:</label>
+                {{ form.incident_time(id="incident_time", type="time", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50") }}
+            </div>
+        </div>
+        
+        <div>
+            <label for="incident_location" class="block text-sm font-medium text-gray-700">Incident Location:</label>
+            {{ form.incident_location(id="incident_location", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50", placeholder="Full address or location where the incident occurred") }}
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="complainant_resident_id" class="block text-sm font-medium text-gray-700">Complainant Resident:</label>
+                <select name="complainant_resident_id" id="complainant_resident_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <option value="">-- Select Complainant --</option>
+                    {% for resident in residents %}
+                        <option value="{{ resident.id }}" {% if form.complainant_resident_id.data == resident.id %}selected{% endif %}>
+                            {{ resident.last_name }}, {{ resident.first_name }} (ID: {{ resident.id }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="complainant_name" class="block text-sm font-medium text-gray-700">Complainant Name: <span class="text-red-500">*</span></label>
+                {{ form.complainant_name(id="complainant_name", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50", placeholder="Required field - will be auto-filled if resident selected") }}
+                <p class="mt-1 text-xs text-gray-500">If no resident is selected, provide complainant name manually</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="respondent_resident_id" class="block text-sm font-medium text-gray-700">Respondent:</label>
+                <select name="respondent_resident_id" id="respondent_resident_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <option value="">-- Select Respondent --</option>
+                    {% for resident in residents %}
+                        <option value="{{ resident.id }}" {% if form.respondent_resident_id.data == resident.id %}selected{% endif %}>
+                            {{ resident.last_name }}, {{ resident.first_name }} (ID: {{ resident.id }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div>
+            <label for="details" class="block text-sm font-medium text-gray-700">Details of the Incident:</label>
+            {{ form.details(id="details", rows="5", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50", placeholder="Provide a detailed description of what happened...") }}
+        </div>
+        
+        <div>
+            <label for="status" class="block text-sm font-medium text-gray-700">Status:</label>
+            {{ form.status(id="status", class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50") }}
+        </div>
+        
+        <div class="flex space-x-4 pt-4">
+            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Save Blotter</button>
+            <a href="{{ url_for('admin.list_blotters') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-fill complainant name when a resident is selected
+    const residentDropdown = document.getElementById('complainant_resident_id');
+    const complainantNameField = document.getElementById('complainant_name');
+    
+    if (residentDropdown && complainantNameField) {
+        residentDropdown.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (this.value) {
+                // Extract name from the selected option text (format: "LastName, FirstName (ID: X)")
+                const fullText = selectedOption.text;
+                const namePart = fullText.split(' (ID:')[0];
+                const [lastName, firstName] = namePart.split(', ');
+                complainantNameField.value = firstName + ' ' + lastName;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'minimal_layout.html' %}
+{% block title %}Register | Barangay Management System{% endblock %}
+{% block extra_head %}
+<!-- No <style> block to avoid linter errors -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('login-bg');
+    // Hide side nav if present
+    var sidenav = document.querySelector('.side-nav, .sidebar, nav.sidebar');
+    if (sidenav) sidenav.style.display = 'none';
+});
+</script>
+{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen" style="background: url('{{ url_for('static', filename='uploads/login-bg.jpg') }}') center center / cover no-repeat fixed;">
+    <div class="w-full max-w-lg bg-white bg-opacity-90 backdrop-blur-sm shadow-2xl rounded-2xl p-10 mt-8 flex flex-col items-center">
+        <div class="mb-8 text-center">
+            <div class="h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-2 shadow">
+                <i class="fas fa-user-plus text-3xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-blue-800 mb-2">Create an Account</h2>
+            <p class="text-gray-500 text-sm">Choose which type of account you want to register.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            <a href="{{ url_for('auth.register_barangay_admin') }}" class="flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl p-8 shadow transition duration-200 text-center focus:outline-none">
+                <i class="fas fa-user-shield text-4xl text-blue-700 mb-3"></i>
+                <span class="text-lg font-bold text-blue-800 mb-1">Barangay Admin</span>
+                <span class="text-gray-600 text-sm mb-2">Register a new barangay and its admin</span>
+                <ul class="text-xs text-left text-gray-500 list-disc list-inside mt-2">
+                    <li>Barangay Name</li>
+                    <li>City</li>
+                    <li>Barangay Address</li>
+                    <li>Admin Username</li>
+                    <li>Admin Email</li>
+                    <li>Password</li>
+                    <li>Confirm Password</li>
+                </ul>
+            </a>
+            <a href="{{ url_for('auth.register_user') }}" class="flex flex-col items-center justify-center bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl p-8 shadow transition duration-200 text-center focus:outline-none">
+                <i class="fas fa-users text-4xl text-green-700 mb-3"></i>
+                <span class="text-lg font-bold text-green-800 mb-1">Resident Account</span>
+                <span class="text-gray-600 text-sm mb-2">Register as a resident of a barangay</span>
+                <ul class="text-xs text-left text-gray-500 list-disc list-inside mt-2">
+                    <li>Select Barangay</li>
+                    <li>First Name</li>
+                    <li>Last Name</li>
+                    <li>Username</li>
+                    <li>Address</li>
+                    <li>Password</li>
+                    <li>Confirm Password</li>
+                </ul>
+            </a>
+        </div>
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('auth.login') }}" class="text-blue-700 hover:underline">Already have an account? Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

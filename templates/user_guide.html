@@ -1,0 +1,129 @@
+{% extends 'layout.html' %}
+
+{% block title %}User Guide | Barangay Management System{% endblock %}
+
+{% block breadcrumb %}
+<li class="flex items-center">
+    <a href="/">Home</a>
+    <span class="mx-2">/</span>
+</li>
+<li class="flex items-center">
+    <a href="{{ url_for('main.user_guide') }}" aria-current="page">User Guide</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-blue-800 mb-6">User Guide</h1>
+    
+    <div class="space-y-8">
+        <div>
+            <h2 class="text-xl font-semibold mb-3 text-gray-800">Getting Started</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p class="mb-4">Welcome to the Barangay Management System! This guide will help you understand how to use all features of the system effectively.</p>
+                <p>The Barangay Management System provides tools to manage:</p>
+                <ul class="list-disc pl-6 my-4">
+                    <li>Resident information</li>
+                    <li>Barangay officials</li>
+                    <li>Document issuance and tracking</li>
+                    <li>Barangay projects</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div>
+            <h2 class="text-xl font-semibold mb-3 text-blue-700">Managing Residents</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p class="mb-2">The Residents module helps you keep track of all people living in your barangay.</p>
+                
+                <h3 class="text-lg font-medium text-blue-600 mt-4 mb-2">Adding a New Resident</h3>
+                <ol class="list-decimal pl-6 my-2">
+                    <li>Go to the Residents page</li>
+                    <li>Click on "Add New Resident"</li>
+                    <li>Fill in all required information</li>
+                    <li>Click "Save Resident" to complete the process</li>
+                </ol>
+                
+                <h3 class="text-lg font-medium text-blue-600 mt-4 mb-2">Viewing and Editing Resident Information</h3>
+                <p>To view a resident's complete profile:</p>
+                <ol class="list-decimal pl-6 my-2">
+                    <li>Navigate to the Residents page</li>
+                    <li>Click the "View" icon next to the resident's name</li>
+                    <li>From the resident's profile, you can also edit their information or issue documents for them</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div>
+            <h2 class="text-xl font-semibold mb-3 text-yellow-700">Document Management</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p class="mb-2">The Documents module allows you to issue, track, and manage barangay documents.</p>
+                
+                <h3 class="text-lg font-medium text-yellow-600 mt-4 mb-2">Issuing a Document</h3>
+                <ol class="list-decimal pl-6 my-2">
+                    <li>Go to the Documents page and click "Issue New Document"</li>
+                    <li>Select the resident from the dropdown list</li>
+                    <li>Choose the document type (Barangay Clearance, Certificate of Residency, etc.)</li>
+                    <li>Enter the purpose for the document</li>
+                    <li>Click "Issue Document" to complete the process</li>
+                </ol>
+                
+                <h3 class="text-lg font-medium text-yellow-600 mt-4 mb-2">Printing Documents</h3>
+                <p>To print a document:</p>
+                <ol class="list-decimal pl-6 my-2">
+                    <li>Find the document in the Documents list</li>
+                    <li>Click the "Print" icon</li>
+                    <li>A printer-friendly version will open in a new window</li>
+                    <li>Use your browser's print function to print the document</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div>
+            <h2 class="text-xl font-semibold mb-3 text-green-700">Managing Officials</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p class="mb-2">The Officials module helps you keep track of all elected and appointed barangay officials.</p>
+                
+                <h3 class="text-lg font-medium text-green-600 mt-4 mb-2">Recording Official Information</h3>
+                <ol class="list-decimal pl-6 my-2">
+                    <li>Go to the Officials page</li>
+                    <li>Click "Add New Official"</li>
+                    <li>Fill in the official's details including their position and term dates</li>
+                    <li>Click "Save Official" to complete the process</li>
+                </ol>
+                
+                <p>The system automatically marks officials as "Current" or "Past" based on their term dates.</p>
+            </div>
+        </div>
+        
+        <div>
+            <h2 class="text-xl font-semibold mb-3 text-purple-700">Project Management</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p class="mb-2">The Projects module helps you track barangay projects and their status.</p>
+                
+                <h3 class="text-lg font-medium text-purple-600 mt-4 mb-2">Adding a New Project</h3>
+                <ol class="list-decimal pl-6 my-2">
+                    <li>Go to the Projects page</li>
+                    <li>Click "Add New Project"</li>
+                    <li>Enter the project name, description, dates, budget, and current status</li>
+                    <li>Click "Save Project" to record the project</li>
+                </ol>
+                
+                <h3 class="text-lg font-medium text-purple-600 mt-4 mb-2">Updating Project Status</h3>
+                <p>As projects progress, remember to update their status:</p>
+                <ol class="list-decimal pl-6 my-2">
+                    <li>Find the project in the Projects list</li>
+                    <li>Click the "Edit" icon</li>
+                    <li>Update the status and any other relevant information</li>
+                    <li>Save your changes</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div>
+            <h2 class="text-xl font-semibold mb-3 text-gray-800">Need More Help?</h2>
+            <p class="text-gray-700">If you have questions or need assistance using the system, please visit our <a href="{{ url_for('main.contact_support') }}" class="text-blue-600 hover:underline">Contact Support</a> page.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
