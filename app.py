@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
 from flask import Flask, session, request, g
 from models import db
 from config import Config
@@ -123,7 +127,7 @@ def create_app(config_class=Config):
 
     app.config['OFFICIALS_UPLOAD_FOLDER'] = os.path.join('static', 'uploads', 'officials')
     os.makedirs(app.config['OFFICIALS_UPLOAD_FOLDER'], exist_ok=True)
-    
+
     return app
 
 def create_admin_user(app):
@@ -157,4 +161,5 @@ if __name__ == '__main__':
     # Create admin user if none exists
     create_admin_user(app)
     
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
