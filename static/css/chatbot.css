@@ -1,0 +1,28 @@
+#chatbot {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.quick-nav-btn {
+    transition: all 0.2s ease;
+}
+
+.quick-nav-btn:hover {
+    transform: translateY(-1px);
+}
